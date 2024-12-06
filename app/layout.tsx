@@ -2,12 +2,11 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
 
-// Dynamically import heavy components with loading fallbacks
+// Dynamically import heavy components
 const BackgroundWebs = dynamic(() => import("./components/BackgroundWebs"), { 
   ssr: false,
-  loading: () => null
+  loading: () => <div className="fixed inset-0 bg-[#0a0a0a]" />
 });
 const AnimatedLines = dynamic(() => import("./components/AnimatedLines"), { 
   ssr: false,
@@ -45,24 +44,22 @@ export default function RootLayout({
   return (
     <html lang="en" className={`scroll-smooth ${inter.variable}`}>
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
       </head>
-      <body className={`${inter.className} bg-[#0a0a0a] text-[#ededed] overflow-x-hidden`}>
-        {/* Content first to ensure it's visible */}
-        <div className="relative z-10">
+      <body className={`${inter.className} bg-[#0a0a0a] text-[#ededed]`}>
+        {/* Main content */}
+        <div className="relative z-10 min-h-screen">
           {children}
         </div>
 
-        {/* Background effects loaded after content */}
-        <Suspense fallback={null}>
-          <div className="fixed inset-0 z-0 pointer-events-none opacity-50">
-            <BackgroundWebs />
-            <AnimatedLines />
-            <CornerWeb />
-            <WebEffect />
-            <FloatingIcons />
-          </div>
-        </Suspense>
+        {/* Background effects */}
+        <div className="fixed inset-0 z-0 pointer-events-none">
+          <BackgroundWebs />
+          <AnimatedLines />
+          <CornerWeb />
+          <WebEffect />
+          <FloatingIcons />
+        </div>
       </body>
     </html>
   );

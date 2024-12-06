@@ -11,6 +11,12 @@ interface WebPoint {
 const BackgroundWebs: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isLoaded, setIsLoaded] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+        return () => setIsMounted(false);
+    }, []);
 
     const drawIrregularWeb = (ctx: CanvasRenderingContext2D, center: WebPoint, radius: number) => {
         // Add slight randomness to center point
@@ -99,6 +105,8 @@ const BackgroundWebs: React.FC = () => {
     };
 
     useEffect(() => {
+        if (!isMounted) return;
+
         const canvas = canvasRef.current;
         if (!canvas) return;
 
@@ -108,9 +116,8 @@ const BackgroundWebs: React.FC = () => {
         let animationFrameId: number;
         let lastDrawTime = 0;
         const isMobile = window.innerWidth < 768;
-        const minDrawInterval = isMobile ? 500 : 100; // Slower updates on mobile
+        const minDrawInterval = isMobile ? 1000 : 100; // Slower updates on mobile
 
-        // Set canvas size with proper DPR handling
         const updateCanvasSize = () => {
             const dpr = window.devicePixelRatio || 1;
             const width = window.innerWidth;
@@ -127,7 +134,7 @@ const BackgroundWebs: React.FC = () => {
         };
 
         const draw = (timestamp: number) => {
-            if (!isLoaded) return;
+            if (!isLoaded || !isMounted) return;
             if (timestamp - lastDrawTime < minDrawInterval) {
                 animationFrameId = requestAnimationFrame(draw);
                 return;
@@ -135,7 +142,6 @@ const BackgroundWebs: React.FC = () => {
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Generate fewer webs on mobile
             const numWebs = isMobile ? 
                 Math.floor(Math.random() * 4) + 4 : // 4-7 webs on mobile
                 Math.floor(Math.random() * 8) + 8;  // 8-15 webs on desktop
@@ -153,7 +159,7 @@ const BackgroundWebs: React.FC = () => {
             animationFrameId = requestAnimationFrame(draw);
         };
 
-        // Initial setup with a slight delay to ensure proper loading
+        // Initial setup with a slight delay
         const setupTimeout = setTimeout(() => {
             updateCanvasSize();
             setIsLoaded(true);
@@ -172,8 +178,9 @@ const BackgroundWebs: React.FC = () => {
             if (animationFrameId) {
                 cancelAnimationFrame(animationFrameId);
             }
+            setIsLoaded(false);
         };
-    }, [isLoaded]);
+    }, [isMounted]);
 
     return (
         <canvas
