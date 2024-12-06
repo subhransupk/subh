@@ -45,7 +45,7 @@ const WebEffect = () => {
             // Mobile: Add random points periodically
             const addRandomPoint = () => {
                 const now = Date.now();
-                if (now - lastPointRef.current < 500) return;
+                if (now - lastPointRef.current < 300) return;
 
                 const color = getRandomColor();
                 const newPoint = {
@@ -57,13 +57,13 @@ const WebEffect = () => {
 
                 setPoints(prevPoints => {
                     const newPoints = [...prevPoints, newPoint];
-                    return newPoints.filter(point => now - point.timestamp < 2000);
+                    return newPoints.filter(point => now - point.timestamp < 3000);
                 });
 
                 lastPointRef.current = now;
             };
 
-            const interval = setInterval(addRandomPoint, 500);
+            const interval = setInterval(addRandomPoint, 300);
             return () => {
                 window.removeEventListener('resize', updateCanvasSize);
                 clearInterval(interval);
@@ -114,8 +114,8 @@ const WebEffect = () => {
 
             if (isMobile) {
                 // Mobile: Simpler rendering with reduced effects
-                ctx.lineWidth = 0.5;
-                ctx.shadowBlur = 5;
+                ctx.lineWidth = 0.8;
+                ctx.shadowBlur = 8;
 
                 points.forEach((point1, i) => {
                     points.forEach((point2, j) => {
@@ -125,13 +125,13 @@ const WebEffect = () => {
                         const dy = point1.y - point2.y;
                         const distance = Math.sqrt(dx * dx + dy * dy);
 
-                        if (distance < 150) {
+                        if (distance < 200) {
                             const age1 = Date.now() - point1.timestamp;
                             const age2 = Date.now() - point2.timestamp;
                             const opacity = Math.min(
-                                1 - age1 / 2000,
-                                1 - age2 / 2000
-                            ) * 0.3;
+                                1 - age1 / 3000,
+                                1 - age2 / 3000
+                            ) * 0.5;
 
                             ctx.beginPath();
                             ctx.moveTo(point1.x, point1.y);
@@ -143,22 +143,22 @@ const WebEffect = () => {
                     });
                 });
 
-                // Draw points with reduced effects
+                // Draw points with enhanced effects
                 points.forEach(point => {
                     const age = Date.now() - point.timestamp;
-                    const opacity = Math.max(0, 1 - age / 2000) * 0.5;
+                    const opacity = Math.max(0, 1 - age / 3000) * 0.7;
 
                     ctx.beginPath();
-                    ctx.arc(point.x, point.y, 2, 0, Math.PI * 2);
-                    ctx.fillStyle = point.color + '80';
-                    ctx.shadowBlur = 4;
-                    ctx.shadowColor = point.color + '40';
+                    ctx.arc(point.x, point.y, 2.5, 0, Math.PI * 2);
+                    ctx.fillStyle = point.color + 'B0';
+                    ctx.shadowBlur = 6;
+                    ctx.shadowColor = point.color + '80';
                     ctx.globalAlpha = opacity;
                     ctx.fill();
 
                     ctx.beginPath();
-                    ctx.arc(point.x, point.y, 1, 0, Math.PI * 2);
-                    ctx.fillStyle = '#FFFFFF80';
+                    ctx.arc(point.x, point.y, 1.2, 0, Math.PI * 2);
+                    ctx.fillStyle = '#FFFFFFB0';
                     ctx.fill();
 
                     ctx.globalAlpha = 1;

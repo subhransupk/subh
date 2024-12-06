@@ -41,15 +41,18 @@ const CornerWeb: React.FC = () => {
         // Web settings
         const cornerX = width;
         const cornerY = 0;
-        const webSize = Math.min(width * 0.3, height * 0.3);
-        const numSpokes = 12;
-        const numRings = 8;
+        const isMobile = window.innerWidth < 768;
+        const webSize = isMobile ? 
+            Math.min(width * 0.4, height * 0.4) : // Larger web on mobile
+            Math.min(width * 0.3, height * 0.3);
+        const numSpokes = isMobile ? 8 : 12; // Fewer spokes on mobile
+        const numRings = isMobile ? 6 : 8; // Fewer rings on mobile
 
         // Set web style with Spider-Verse colors
-        ctx.strokeStyle = 'rgba(128, 255, 255, 0.8)'; // Cyan base color
-        ctx.lineWidth = 0.5;
-        ctx.shadowColor = '#FF3366'; // Pink glow
-        ctx.shadowBlur = 3;
+        ctx.strokeStyle = 'rgba(128, 255, 255, 0.8)';
+        ctx.lineWidth = isMobile ? 0.8 : 0.5; // Thicker lines on mobile
+        ctx.shadowColor = '#FF3366';
+        ctx.shadowBlur = isMobile ? 4 : 3; // Stronger glow on mobile
 
         // Draw anchor points to corner and edges
         ctx.beginPath();
@@ -72,7 +75,7 @@ const CornerWeb: React.FC = () => {
         }
 
         // Draw spiral web
-        let currentRadius = webSize * 0.15;
+        let currentRadius = webSize * (isMobile ? 0.2 : 0.15); // Start further out on mobile
         const radiusStep = (webSize - currentRadius) / numRings;
 
         for (let ring = 0; ring < numRings; ring++) {
@@ -80,7 +83,7 @@ const CornerWeb: React.FC = () => {
             
             for (let i = 0; i <= numSpokes; i++) {
                 const angle = (i * Math.PI / 2) / (numSpokes - 1);
-                const distortion = Math.sin(ring + i + shineRef.current * 0.05) * 5;
+                const distortion = Math.sin(ring + i + shineRef.current * 0.05) * (isMobile ? 8 : 5); // More movement on mobile
                 const radius = currentRadius + distortion;
                 
                 const x = cornerX - Math.cos(angle) * radius;
@@ -93,8 +96,8 @@ const CornerWeb: React.FC = () => {
                     const prevX = cornerX - Math.cos(prevAngle) * radius;
                     const prevY = cornerY + Math.sin(prevAngle) * radius;
                     
-                    const cpX = (x + prevX) / 2 - Math.sin(angle) * 10;
-                    const cpY = (y + prevY) / 2 + Math.cos(angle) * 10;
+                    const cpX = (x + prevX) / 2 - Math.sin(angle) * (isMobile ? 15 : 10);
+                    const cpY = (y + prevY) / 2 + Math.cos(angle) * (isMobile ? 15 : 10);
                     
                     ctx.quadraticCurveTo(cpX, cpY, x, y);
                 }
@@ -112,8 +115,8 @@ const CornerWeb: React.FC = () => {
             cornerY + webSize * 0.3, 
             webSize * 0.5
         );
-        gradient.addColorStop(0, 'rgba(255, 51, 102, 0.2)'); // Pink
-        gradient.addColorStop(0.5, 'rgba(128, 255, 255, 0.1)'); // Cyan
+        gradient.addColorStop(0, 'rgba(255, 51, 102, 0.3)'); // Stronger pink glow
+        gradient.addColorStop(0.5, 'rgba(128, 255, 255, 0.2)'); // Stronger cyan glow
         gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
 
         ctx.fillStyle = gradient;
@@ -124,33 +127,29 @@ const CornerWeb: React.FC = () => {
             particlesRef.current = createParticles(webSize, cornerX, cornerY);
         }
 
-        // Draw particles with slow animation
+        // Draw particles with enhanced animation for mobile
         particlesRef.current.forEach((particle) => {
-            // Slow oscillating movement
-            const oscillation = Math.sin((shineRef.current * 0.02) + particle.offset) * 2;
+            const oscillation = Math.sin((shineRef.current * (isMobile ? 0.03 : 0.02)) + particle.offset) * (isMobile ? 3 : 2);
             
-            // Glow effect matching particle color
             ctx.shadowColor = particle.color;
-            ctx.shadowBlur = 5;
+            ctx.shadowBlur = isMobile ? 8 : 5;
 
-            // Main particle
             ctx.beginPath();
             ctx.arc(
                 particle.x + oscillation, 
                 particle.y + oscillation * 0.5, 
-                particle.size, 
+                particle.size * (isMobile ? 1.5 : 1), // Larger particles on mobile
                 0, 
                 Math.PI * 2
             );
             ctx.fillStyle = particle.color;
             ctx.fill();
 
-            // Highlight
             ctx.beginPath();
             ctx.arc(
                 particle.x + oscillation - particle.size * 0.3,
                 particle.y + oscillation * 0.5 - particle.size * 0.3,
-                particle.size * 0.4,
+                particle.size * (isMobile ? 0.6 : 0.4),
                 0,
                 Math.PI * 2
             );

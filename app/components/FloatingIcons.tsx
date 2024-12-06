@@ -81,16 +81,16 @@ const FloatingIcons: React.FC = () => {
                 // Mobile: Simpler initialization
                 const maxIcons = 6;
                 const newIcons = techIcons.slice(0, maxIcons).map((icon) => {
-                    const size = 24;
+                    const size = 32;
                     return {
                         ...icon,
                         x: Math.random() * (container.clientWidth - size),
                         y: Math.random() * (container.clientHeight - size),
                         size,
-                        speed: 0.3,
+                        speed: 0.5,
                         offset: Math.random() * Math.PI * 2,
                         rotation: Math.random() * 360,
-                        rotationSpeed: 0.2,
+                        rotationSpeed: 0.5,
                         glitchOffset: 0,
                         glitchTime: 0,
                         scale: 1
@@ -141,7 +141,7 @@ const FloatingIcons: React.FC = () => {
             setIcons(prevIcons => prevIcons.map(icon => {
                 if (isMobile) {
                     // Mobile: Simple floating animation
-                    const movement = 10;
+                    const movement = 15;
                     const newX = icon.x + Math.sin(now * icon.speed + icon.offset) * movement;
                     const newY = icon.y + Math.cos(now * icon.speed + icon.offset) * movement;
                     const newRotation = icon.rotation + icon.rotationSpeed;
