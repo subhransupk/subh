@@ -118,7 +118,7 @@ const Contact = () => {
     };
 
     return (
-        <section className="relative py-12">
+        <section id="contact" className="relative py-12">
             {/* Notification */}
             <AnimatePresence>
                 {notification && (

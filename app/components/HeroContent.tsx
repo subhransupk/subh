@@ -85,10 +85,15 @@ const HeroContent = () => {
                                  font-bold text-base sm:text-lg transform transition-all duration-300
                                  hover:scale-105 hover:-rotate-1 hover:translate-y-[-2px]
                                  border-2 border-cyan-500 overflow-hidden w-full sm:w-auto"
-                        onClick={() => window.location.href = 'mailto:your.email@example.com'}
+                        onClick={() => {
+                            const contactSection = document.getElementById('contact');
+                            if (contactSection) {
+                                contactSection.scrollIntoView({ behavior: 'smooth' });
+                            }
+                        }}
                     >
                         {/* Button Content */}
-                        <span className="relative z-10">Ready to Web-Sling Into Your Next Project? 🕸️</span>
+                        <span className="relative z-10">Let's Work Together 🚀</span>
 
                         {/* Hover Background Effect */}
                         <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 via-cyan-500/20 to-pink-500/20 

@@ -119,7 +119,7 @@ const Contact = () => {
     };
 
     return (
-        <section className="relative py-20 overflow-hidden">
+        <section id="contact" className="relative py-20 overflow-hidden">
             {/* Animated background web pattern */}
             <div className="absolute inset-0 opacity-10">
                 <div className="absolute top-0 left-0 w-full h-full border-l border-cyan-500/50 transform -skew-x-45 animate-pulse" />

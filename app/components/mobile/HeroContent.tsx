@@ -50,7 +50,12 @@ const HeroContent = () => {
                 <button
                     className="w-full bg-gradient-to-r from-cyan-500 to-pink-500 text-white px-6 py-3 rounded-lg
                              font-bold text-base shadow-lg shadow-cyan-500/20"
-                    onClick={() => window.location.href = 'mailto:your.email@example.com'}
+                    onClick={() => {
+                        const contactSection = document.getElementById('contact');
+                        if (contactSection) {
+                            contactSection.scrollIntoView({ behavior: 'smooth' });
+                        }
+                    }}
                 >
                     Let's Work Together 🚀
                 </button>
