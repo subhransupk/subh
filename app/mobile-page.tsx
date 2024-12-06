@@ -8,8 +8,8 @@ import TechStack from './components/mobile/TechStack';
 
 export default function MobilePage() {
   return (
-    <main className="relative w-full bg-gradient-to-b from-[#0a0a0a] to-[#1a1a1a]">
-      <div className="w-full px-4">
+    <main className="relative w-full bg-[#0a0a0a]">
+      <div className="w-full px-4 relative z-10">
         {/* Hero Section */}
         <section className="min-h-screen flex items-center justify-center">
           <HeroContent />

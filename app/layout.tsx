@@ -65,8 +65,8 @@ export default function RootLayout({
             <WebEffect />
           </div>
 
-          {/* Floating Icons Layer */}
-          <FloatingIcons />
+          {/* Floating Icons Layer - Desktop Only */}
+          {!mobile && <FloatingIcons />}
 
           {/* Content Layer */}
           <div className="relative z-10">
