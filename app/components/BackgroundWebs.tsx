@@ -116,7 +116,7 @@ const BackgroundWebs: React.FC = () => {
         let animationFrameId: number;
         let lastDrawTime = 0;
         const isMobile = window.innerWidth < 768;
-        const minDrawInterval = isMobile ? 1000 : 100; // Slower updates on mobile
+        const minDrawInterval = isMobile ? 2000 : 100; // Slower updates on mobile
 
         const updateCanvasSize = () => {
             const dpr = window.devicePixelRatio || 1;
@@ -143,14 +143,14 @@ const BackgroundWebs: React.FC = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             const numWebs = isMobile ? 
-                Math.floor(Math.random() * 4) + 4 : // 4-7 webs on mobile
+                Math.floor(Math.random() * 2) + 2 : // 2-3 webs on mobile
                 Math.floor(Math.random() * 8) + 8;  // 8-15 webs on desktop
 
             for (let i = 0; i < numWebs; i++) {
                 const webPoint: WebPoint = {
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
-                    radius: Math.random() * (isMobile ? 100 : 150) + (isMobile ? 50 : 100),
+                    radius: Math.random() * (isMobile ? 50 : 150) + (isMobile ? 30 : 100), // Smaller radius on mobile
                 };
                 drawIrregularWeb(ctx, webPoint, webPoint.radius);
             }

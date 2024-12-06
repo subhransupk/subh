@@ -4,7 +4,7 @@ import "./globals.css";
 import dynamic from 'next/dynamic';
 import { headers } from 'next/headers';
 
-// Desktop background components
+// Background components with mobile-optimized loading
 const BackgroundWebs = dynamic(() => import("./components/BackgroundWebs"), { 
   ssr: false,
   loading: () => <div className="fixed inset-0 bg-[#0a0a0a]" />
@@ -56,26 +56,19 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
       </head>
       <body className={`${inter.className} bg-[#0a0a0a] text-[#ededed]`}>
-        {mobile ? (
-          // Mobile Layout - Simple and lightweight
-          <div className="relative min-h-screen">
+        {/* Common layout for both mobile and desktop */}
+        <>
+          <div className="relative z-10 min-h-screen">
             {children}
           </div>
-        ) : (
-          // Desktop Layout - Full effects
-          <>
-            <div className="relative z-10 min-h-screen">
-              {children}
-            </div>
-            <div className="fixed inset-0 z-0 pointer-events-none">
-              <BackgroundWebs />
-              <AnimatedLines />
-              <CornerWeb />
-              <WebEffect />
-              <FloatingIcons />
-            </div>
-          </>
-        )}
+          <div className="fixed inset-0 z-0 pointer-events-none">
+            <BackgroundWebs />
+            <AnimatedLines />
+            <CornerWeb />
+            <WebEffect />
+            <FloatingIcons />
+          </div>
+        </>
       </body>
     </html>
   );

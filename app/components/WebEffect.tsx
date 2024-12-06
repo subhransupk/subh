@@ -13,6 +13,7 @@ const WebEffect = () => {
     const [points, setPoints] = useState<Point[]>([]);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const animationFrameRef = useRef<number>();
+    const lastPointRef = useRef<number>(0);
 
     const spiderVerseColors = [
         { main: '#FF3366', glow: 'rgba(255, 51, 102, 0.3)' },  // Neon Pink
@@ -38,31 +39,65 @@ const WebEffect = () => {
         updateCanvasSize();
         window.addEventListener('resize', updateCanvasSize);
 
-        const handleMouseMove = (e: MouseEvent) => {
-            const now = Date.now();
-            const color = getRandomColor();
-            const newPoint = {
-                x: e.clientX,
-                y: e.clientY,
-                timestamp: now,
-                color: color.main,
+        const isMobile = window.innerWidth < 768;
+
+        if (isMobile) {
+            // Mobile: Add random points periodically
+            const addRandomPoint = () => {
+                const now = Date.now();
+                if (now - lastPointRef.current < 500) return;
+
+                const color = getRandomColor();
+                const newPoint = {
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * window.innerHeight,
+                    timestamp: now,
+                    color: color.main,
+                };
+
+                setPoints(prevPoints => {
+                    const newPoints = [...prevPoints, newPoint];
+                    return newPoints.filter(point => now - point.timestamp < 2000);
+                });
+
+                lastPointRef.current = now;
             };
 
-            setPoints(prevPoints => {
-                const newPoints = [...prevPoints, newPoint];
-                return newPoints.filter(point => now - point.timestamp < 2000);
-            });
-        };
+            const interval = setInterval(addRandomPoint, 500);
+            return () => {
+                window.removeEventListener('resize', updateCanvasSize);
+                clearInterval(interval);
+                if (animationFrameRef.current) {
+                    cancelAnimationFrame(animationFrameRef.current);
+                }
+            };
+        } else {
+            // Desktop: Use mouse movement
+            const handleMouseMove = (e: MouseEvent) => {
+                const now = Date.now();
+                const color = getRandomColor();
+                const newPoint = {
+                    x: e.clientX,
+                    y: e.clientY,
+                    timestamp: now,
+                    color: color.main,
+                };
 
-        document.addEventListener('mousemove', handleMouseMove);
+                setPoints(prevPoints => {
+                    const newPoints = [...prevPoints, newPoint];
+                    return newPoints.filter(point => now - point.timestamp < 2000);
+                });
+            };
 
-        return () => {
-            window.removeEventListener('resize', updateCanvasSize);
-            document.removeEventListener('mousemove', handleMouseMove);
-            if (animationFrameRef.current) {
-                cancelAnimationFrame(animationFrameRef.current);
-            }
-        };
+            document.addEventListener('mousemove', handleMouseMove);
+            return () => {
+                window.removeEventListener('resize', updateCanvasSize);
+                document.removeEventListener('mousemove', handleMouseMove);
+                if (animationFrameRef.current) {
+                    cancelAnimationFrame(animationFrameRef.current);
+                }
+            };
+        }
     }, []);
 
     useEffect(() => {
@@ -72,71 +107,123 @@ const WebEffect = () => {
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
+        const isMobile = window.innerWidth < 768;
+
         const drawWeb = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw connections between points
-            for (let i = 0; i < points.length; i++) {
-                for (let j = i + 1; j < points.length; j++) {
-                    const distance = Math.hypot(points[i].x - points[j].x, points[i].y - points[j].y);
-                    if (distance < 150) {
-                        const age = Math.min(
-                            Date.now() - points[i].timestamp,
-                            Date.now() - points[j].timestamp
-                        );
-                        
-                        // Create gradient for the line
-                        const gradient = ctx.createLinearGradient(
-                            points[i].x, points[i].y,
-                            points[j].x, points[j].y
-                        );
-                        gradient.addColorStop(0, points[i].color + '80'); // 50% opacity
-                        gradient.addColorStop(1, points[j].color + '80'); // 50% opacity
 
-                        ctx.beginPath();
-                        ctx.moveTo(points[i].x, points[i].y);
-                        ctx.lineTo(points[j].x, points[j].y);
+            if (isMobile) {
+                // Mobile: Simpler rendering with reduced effects
+                ctx.lineWidth = 0.5;
+                ctx.shadowBlur = 5;
 
-                        // Set line style with reduced glow
-                        ctx.strokeStyle = gradient;
-                        ctx.lineWidth = 1.5; // Slightly thinner lines
-                        ctx.shadowBlur = 5; // Reduced glow
-                        ctx.shadowColor = points[i].color + '40'; // 25% opacity for glow
-                        
-                        // Fade based on distance and time
-                        const opacity = Math.max(0, 1 - distance / 150) * 
-                                      Math.max(0, 1 - age / 2000) * 0.7; // Reduced max opacity
-                        ctx.globalAlpha = opacity;
-                        
-                        ctx.stroke();
-                        ctx.globalAlpha = 1;
+                points.forEach((point1, i) => {
+                    points.forEach((point2, j) => {
+                        if (i === j) return;
+
+                        const dx = point1.x - point2.x;
+                        const dy = point1.y - point2.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance < 150) {
+                            const age1 = Date.now() - point1.timestamp;
+                            const age2 = Date.now() - point2.timestamp;
+                            const opacity = Math.min(
+                                1 - age1 / 2000,
+                                1 - age2 / 2000
+                            ) * 0.3;
+
+                            ctx.beginPath();
+                            ctx.moveTo(point1.x, point1.y);
+                            ctx.lineTo(point2.x, point2.y);
+                            ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
+                            ctx.shadowColor = point1.color;
+                            ctx.stroke();
+                        }
+                    });
+                });
+
+                // Draw points with reduced effects
+                points.forEach(point => {
+                    const age = Date.now() - point.timestamp;
+                    const opacity = Math.max(0, 1 - age / 2000) * 0.5;
+
+                    ctx.beginPath();
+                    ctx.arc(point.x, point.y, 2, 0, Math.PI * 2);
+                    ctx.fillStyle = point.color + '80';
+                    ctx.shadowBlur = 4;
+                    ctx.shadowColor = point.color + '40';
+                    ctx.globalAlpha = opacity;
+                    ctx.fill();
+
+                    ctx.beginPath();
+                    ctx.arc(point.x, point.y, 1, 0, Math.PI * 2);
+                    ctx.fillStyle = '#FFFFFF80';
+                    ctx.fill();
+
+                    ctx.globalAlpha = 1;
+                    ctx.shadowBlur = 0;
+                });
+            } else {
+                // Desktop: Full effects
+                for (let i = 0; i < points.length; i++) {
+                    for (let j = i + 1; j < points.length; j++) {
+                        const distance = Math.hypot(points[i].x - points[j].x, points[i].y - points[j].y);
+                        if (distance < 150) {
+                            const age = Math.min(
+                                Date.now() - points[i].timestamp,
+                                Date.now() - points[j].timestamp
+                            );
+                            
+                            // Create gradient for the line
+                            const gradient = ctx.createLinearGradient(
+                                points[i].x, points[i].y,
+                                points[j].x, points[j].y
+                            );
+                            gradient.addColorStop(0, points[i].color + '80');
+                            gradient.addColorStop(1, points[j].color + '80');
+
+                            ctx.beginPath();
+                            ctx.moveTo(points[i].x, points[i].y);
+                            ctx.lineTo(points[j].x, points[j].y);
+
+                            ctx.strokeStyle = gradient;
+                            ctx.lineWidth = 1.5;
+                            ctx.shadowBlur = 5;
+                            ctx.shadowColor = points[i].color + '40';
+                            
+                            const opacity = Math.max(0, 1 - distance / 150) * 
+                                          Math.max(0, 1 - age / 2000) * 0.7;
+                            ctx.globalAlpha = opacity;
+                            
+                            ctx.stroke();
+                            ctx.globalAlpha = 1;
+                        }
                     }
                 }
+
+                // Draw points with full effects
+                points.forEach(point => {
+                    const age = Date.now() - point.timestamp;
+                    const opacity = Math.max(0, 1 - age / 2000) * 0.7;
+
+                    ctx.beginPath();
+                    ctx.arc(point.x, point.y, 2, 0, Math.PI * 2);
+                    ctx.fillStyle = point.color + '80';
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = point.color + '40';
+                    ctx.globalAlpha = opacity;
+                    ctx.fill();
+
+                    ctx.beginPath();
+                    ctx.arc(point.x, point.y, 1, 0, Math.PI * 2);
+                    ctx.fillStyle = '#FFFFFF80';
+                    ctx.fill();
+
+                    ctx.globalAlpha = 1;
+                    ctx.shadowBlur = 0;
+                });
             }
-
-            // Draw points with reduced glow
-            points.forEach(point => {
-                const age = Date.now() - point.timestamp;
-                const opacity = Math.max(0, 1 - age / 2000) * 0.7; // Reduced max opacity
-
-                // Draw glow
-                ctx.beginPath();
-                ctx.arc(point.x, point.y, 2, 0, Math.PI * 2); // Slightly smaller points
-                ctx.fillStyle = point.color + '80'; // 50% opacity
-                ctx.shadowBlur = 8; // Reduced glow
-                ctx.shadowColor = point.color + '40'; // 25% opacity for glow
-                ctx.globalAlpha = opacity;
-                ctx.fill();
-
-                // Draw center
-                ctx.beginPath();
-                ctx.arc(point.x, point.y, 1, 0, Math.PI * 2);
-                ctx.fillStyle = '#FFFFFF80'; // 50% opacity
-                ctx.fill();
-
-                ctx.globalAlpha = 1;
-                ctx.shadowBlur = 0;
-            });
 
             animationFrameRef.current = requestAnimationFrame(drawWeb);
         };
