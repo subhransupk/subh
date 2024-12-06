@@ -14,7 +14,6 @@ interface Icon {
     rotation: number;
     rotationSpeed: number;
     glitchOffset: number;
-    glitchTime: number;
     scale: number;
 }
 
@@ -33,17 +32,12 @@ const FloatingIcons: React.FC = () => {
     ];
 
     const techIcons = [
-        // Frontend
         { src: '/icons/react.svg', alt: 'React' },
         { src: '/icons/nextjs.svg', alt: 'Next.js' },
         { src: '/icons/typescript.svg', alt: 'TypeScript' },
-        { src: '/icons/wordpress.svg', alt: 'WordPress' },
-        // Backend & Databases
-        { src: '/icons/python.svg', alt: 'Python' },
         { src: '/icons/nodejs.svg', alt: 'Node.js' },
         { src: '/icons/mongodb.svg', alt: 'MongoDB' },
         { src: '/icons/postgresql.svg', alt: 'PostgreSQL' },
-        // Other
         { src: '/icons/flutter.svg', alt: 'Flutter' },
         { src: '/icons/firebase.svg', alt: 'Firebase' },
         { src: '/icons/git.svg', alt: 'Git' }
@@ -75,36 +69,40 @@ const FloatingIcons: React.FC = () => {
         const container = containerRef.current;
         const isMobile = window.innerWidth < 768;
 
-        // Initialize icons
+        // Initialize icons based on device type
         const initializeIcons = () => {
             if (isMobile) {
-                // Mobile: Simpler initialization
-                const maxIcons = 6;
-                const newIcons = techIcons.slice(0, maxIcons).map((icon) => {
-                    const size = 32;
+                // Mobile: Grid-based layout with 6 icons
+                const mobileIcons = techIcons.slice(0, 6).map((icon, index) => {
+                    const row = Math.floor(index / 2);
+                    const col = index % 2;
+                    const gridSize = {
+                        width: container.clientWidth / 2,
+                        height: container.clientHeight / 3
+                    };
+                    
                     return {
                         ...icon,
-                        x: Math.random() * (container.clientWidth - size),
-                        y: Math.random() * (container.clientHeight - size),
-                        size,
-                        speed: 0.5,
+                        x: (col + 0.5) * gridSize.width + (Math.random() - 0.5) * 20,
+                        y: (row + 0.5) * gridSize.height + (Math.random() - 0.5) * 20,
+                        size: 40,
+                        speed: 0.8,
                         offset: Math.random() * Math.PI * 2,
                         rotation: Math.random() * 360,
-                        rotationSpeed: 0.5,
+                        rotationSpeed: (Math.random() - 0.5) * 2,
                         glitchOffset: 0,
-                        glitchTime: 0,
                         scale: 1
                     };
                 });
-                setIcons(newIcons);
+                setIcons(mobileIcons);
             } else {
-                // Desktop: Full initialization
+                // Desktop: Original scattered layout
                 const centerX = container.clientWidth / 2;
                 const centerY = container.clientHeight / 2;
                 const safeZone = 300;
                 const margin = 120;
 
-                const newIcons = techIcons.map((icon) => {
+                const desktopIcons = techIcons.map((icon) => {
                     let x, y;
                     do {
                         x = margin + Math.random() * (container.clientWidth - 2 * margin);
@@ -124,11 +122,10 @@ const FloatingIcons: React.FC = () => {
                         rotation: Math.random() * 360,
                         rotationSpeed: (Math.random() - 0.5) * 1.5,
                         glitchOffset: 0,
-                        glitchTime: 0,
                         scale: 1
                     };
                 });
-                setIcons(newIcons);
+                setIcons(desktopIcons);
             }
         };
 
@@ -140,10 +137,10 @@ const FloatingIcons: React.FC = () => {
             
             setIcons(prevIcons => prevIcons.map(icon => {
                 if (isMobile) {
-                    // Mobile: Simple floating animation
-                    const movement = 15;
-                    const newX = icon.x + Math.sin(now * icon.speed + icon.offset) * movement;
-                    const newY = icon.y + Math.cos(now * icon.speed + icon.offset) * movement;
+                    // Mobile: Floating animation with larger movement
+                    const floatRadius = 20;
+                    const newX = icon.x + Math.sin(now * icon.speed + icon.offset) * floatRadius;
+                    const newY = icon.y + Math.cos(now * icon.speed + icon.offset) * floatRadius;
                     const newRotation = icon.rotation + icon.rotationSpeed;
 
                     return {
@@ -151,25 +148,15 @@ const FloatingIcons: React.FC = () => {
                         x: newX,
                         y: newY,
                         rotation: newRotation,
-                        glitchOffset: 0,
-                        scale: 1
+                        scale: 1 + Math.sin(now * icon.speed) * 0.1 // Subtle pulse effect
                     };
                 } else {
-                    // Desktop: Full animation with glitch effects
-                    const newX = icon.x + Math.sin(now * icon.speed + icon.offset);
-                    const newY = icon.y + Math.cos(now * icon.speed + icon.offset);
-                    const newRotation = icon.rotation + icon.rotationSpeed;
-                    const shouldGlitch = Math.random() > 0.995;
-                    const newGlitchOffset = shouldGlitch ? (Math.random() - 0.5) * 5 : 0;
-                    const newScale = Math.random() > 0.99 ? 1.1 : 1;
-
+                    // Desktop: Original animation
                     return {
                         ...icon,
-                        x: newX,
-                        y: newY,
-                        rotation: newRotation,
-                        glitchOffset: newGlitchOffset,
-                        scale: newScale
+                        x: icon.x + Math.sin(now * icon.speed + icon.offset),
+                        y: icon.y + Math.cos(now * icon.speed + icon.offset),
+                        rotation: icon.rotation + icon.rotationSpeed
                     };
                 }
             }));
@@ -216,7 +203,7 @@ const FloatingIcons: React.FC = () => {
                 return (
                     <div
                         key={`${icon.alt}-${index}`}
-                        className="absolute transition-all duration-300 hover:scale-125 group"
+                        className="absolute transition-transform duration-300"
                         style={{
                             transform: `translate(${icon.x + icon.glitchOffset}px, ${icon.y}px) 
                                       rotate(${icon.rotation}deg) scale(${icon.scale})`,
@@ -237,7 +224,7 @@ const FloatingIcons: React.FC = () => {
                                     alt={icon.alt}
                                     width={icon.size}
                                     height={icon.size}
-                                    className="w-full h-full object-contain transition-all duration-300 group-hover:brightness-125"
+                                    className="w-full h-full object-contain"
                                     priority
                                 />
                             </div>
