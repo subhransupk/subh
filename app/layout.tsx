@@ -4,7 +4,7 @@ import "./globals.css";
 import dynamic from 'next/dynamic';
 import { headers } from 'next/headers';
 
-// Background components with mobile-optimized loading
+// Desktop components
 const BackgroundWebs = dynamic(() => import("./components/BackgroundWebs"), { 
   ssr: false,
   loading: () => <div className="fixed inset-0 bg-[#0a0a0a]" />
@@ -26,12 +26,8 @@ const FloatingIcons = dynamic(() => import("./components/FloatingIcons"), {
   loading: () => null
 });
 
-// Mobile-optimized components
+// Mobile-optimized component
 const MobileAnimatedLines = dynamic(() => import("./components/mobile/AnimatedLines"), { 
-  ssr: false,
-  loading: () => null
-});
-const MobileCornerWeb = dynamic(() => import("./components/mobile/CornerWeb"), { 
   ssr: false,
   loading: () => null
 });
@@ -65,8 +61,8 @@ export default function RootLayout({
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
       </head>
-      <body className={`${inter.className} bg-[#0a0a0a] text-[#ededed] relative overflow-x-hidden`}>
-        {/* Content Layer - Highest Priority */}
+      <body className={`${inter.className} bg-[#0a0a0a] text-[#ededed]`}>
+        {/* Content Layer */}
         <div className="relative z-20">
           {children}
         </div>
@@ -74,17 +70,12 @@ export default function RootLayout({
         {/* Background Effects Layer */}
         <div className="fixed inset-0 z-10">
           {mobile ? (
-            // Mobile: Simple effects
-            <>
-              <div className="opacity-20">
-                <MobileAnimatedLines />
-              </div>
-              <div className="opacity-20">
-                <MobileCornerWeb />
-              </div>
-            </>
+            // Mobile: Only AnimatedLines with reduced opacity
+            <div className="opacity-30">
+              <MobileAnimatedLines />
+            </div>
           ) : (
-            // Desktop: Full effects
+            // Desktop: All effects (unchanged)
             <>
               <BackgroundWebs />
               <AnimatedLines />
