@@ -56,19 +56,23 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
       </head>
       <body className={`${inter.className} bg-[#0a0a0a] text-[#ededed]`}>
-        {/* Common layout for both mobile and desktop */}
-        <>
-          <div className="relative z-10 min-h-screen">
-            {children}
-          </div>
-          <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="relative min-h-screen">
+          {/* Background Effects Layer */}
+          <div className="fixed inset-0 z-0">
             <BackgroundWebs />
             <AnimatedLines />
             <CornerWeb />
             <WebEffect />
-            <FloatingIcons />
           </div>
-        </>
+
+          {/* Floating Icons Layer */}
+          <FloatingIcons />
+
+          {/* Content Layer */}
+          <div className="relative z-10">
+            {children}
+          </div>
+        </div>
       </body>
     </html>
   );
