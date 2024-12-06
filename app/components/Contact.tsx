@@ -34,11 +34,11 @@ const Contact = () => {
     const [notification, setNotification] = useState<Notification | null>(null);
 
     const socialLinks = [
-        { icon: FaGithub, href: "https://github.com/yourusername", label: "GitHub" },
-        { icon: FaLinkedin, href: "https://linkedin.com/in/yourusername", label: "LinkedIn" },
+        { icon: FaGithub, href: "https://github.com/subhransupk", label: "GitHub" },
+        { icon: FaLinkedin, href: "https://www.linkedin.com/in/digital-subhransu/", label: "LinkedIn" },
         { icon: FaTwitter, href: "https://twitter.com/yourusername", label: "Twitter" },
-        { icon: FaInstagram, href: "https://instagram.com/yourusername", label: "Instagram" },
-        { icon: FaWhatsapp, href: "https://wa.me/yournumber", label: "WhatsApp" }
+        { icon: FaInstagram, href: "https://www.instagram.com/digitalsubhransu/", label: "Instagram" },
+        { icon: FaWhatsapp, href: "https://wa.me/917437988568", label: "WhatsApp" }
     ];
 
     const validateEmail = (email: string) => {
