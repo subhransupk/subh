@@ -8,37 +8,39 @@ import TechStack from './components/mobile/TechStack';
 
 export default function MobilePage() {
   return (
-    <main className="relative w-full bg-[#0a0a0a]">
-      <div className="w-full px-4 relative z-10">
+    <main className="w-full min-h-screen bg-[#0a0a0a]">
+      <div className="w-full h-full px-4">
         {/* Hero Section */}
         <section className="min-h-screen flex items-center justify-center">
           <HeroContent />
         </section>
         
-        {/* Content Sections */}
-        <section className="py-10">
-          <AboutMe />
-        </section>
-        
-        <section className="py-10">
-          <Services />
-        </section>
-        
-        <section className="py-10">
-          <Portfolio />
-        </section>
-        
-        <section className="py-10">
-          <TechStack />
-        </section>
-        
-        <section className="py-10">
-          <Testimonials />
-        </section>
-        
-        <section className="py-10">
-          <Contact />
-        </section>
+        {/* Content Sections with proper spacing */}
+        <div className="space-y-16">
+          <section>
+            <AboutMe />
+          </section>
+          
+          <section>
+            <Services />
+          </section>
+          
+          <section>
+            <Portfolio />
+          </section>
+          
+          <section>
+            <TechStack />
+          </section>
+          
+          <section>
+            <Testimonials />
+          </section>
+          
+          <section>
+            <Contact />
+          </section>
+        </div>
       </div>
     </main>
   );
