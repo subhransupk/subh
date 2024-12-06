@@ -11,7 +11,7 @@ export default function MobilePage() {
     <main className="w-full min-h-screen bg-[#0a0a0a]">
       <div className="w-full h-full px-4">
         {/* Hero Section */}
-        <section className="min-h-screen flex items-center justify-center">
+        <section className="min-h-[85vh] flex items-center justify-center pt-8">
           <HeroContent />
         </section>
         
