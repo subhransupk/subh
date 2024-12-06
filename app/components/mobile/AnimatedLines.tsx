@@ -2,34 +2,9 @@
 
 import React, { useEffect, useRef } from 'react';
 
-interface SpeedLine {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    speed: number;
-    opacity: number;
-    direction: 'left' | 'right';
-}
-
 const MobileAnimatedLines: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const linesRef = useRef<SpeedLine[]>([]);
     const frameRef = useRef<number>(0);
-
-    const createSpeedLine = (canvas: HTMLCanvasElement): SpeedLine => {
-        const direction = Math.random() > 0.5 ? 'left' : 'right';
-        const width = Math.random() * 50 + 50; // Shorter lines
-        return {
-            x: direction === 'left' ? canvas.width : -width,
-            y: Math.random() * canvas.height,
-            width,
-            height: Math.random() * 1 + 0.5, // Thinner lines
-            speed: Math.random() * 1 + 0.5, // Slower speed
-            opacity: Math.random() * 0.3 + 0.1, // Lower opacity
-            direction,
-        };
-    };
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -39,51 +14,56 @@ const MobileAnimatedLines: React.FC = () => {
         if (!ctx) return;
 
         const updateCanvasSize = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = window.innerWidth * dpr;
+            canvas.height = window.innerHeight * dpr;
+            canvas.style.width = `${window.innerWidth}px`;
+            canvas.style.height = `${window.innerHeight}px`;
+            ctx.scale(dpr, dpr);
         };
 
         updateCanvasSize();
         window.addEventListener('resize', updateCanvasSize);
 
-        const updateLines = (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
+        let lines: { x: number; y: number; width: number }[] = [];
+        const maxLines = 8; // Very few lines
+
+        const createLine = () => {
+            const y = Math.random() * canvas.height;
+            return {
+                x: -100, // Start off screen
+                y,
+                width: Math.random() * 30 + 20 // Shorter lines
+            };
+        };
+
+        const animate = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+            // Add new line if needed
+            if (lines.length < maxLines && Math.random() < 0.05) {
+                lines.push(createLine());
+            }
+
             // Update and draw lines
-            for (let i = linesRef.current.length - 1; i >= 0; i--) {
-                const line = linesRef.current[i];
+            ctx.strokeStyle = 'rgba(0, 255, 255, 0.1)'; // Very low opacity
+            ctx.lineWidth = 1;
 
-                // Move line
-                if (line.direction === 'right') {
-                    line.x += line.speed;
-                } else {
-                    line.x -= line.speed;
-                }
-
-                // Draw line
+            lines = lines.filter(line => {
+                line.x += 1; // Slow movement
+                
                 ctx.beginPath();
-                ctx.strokeStyle = `rgba(0, 255, 255, ${line.opacity})`; // Cyan color
-                ctx.lineWidth = line.height;
                 ctx.moveTo(line.x, line.y);
                 ctx.lineTo(line.x + line.width, line.y);
                 ctx.stroke();
 
-                // Remove lines that are off screen
-                if (line.direction === 'right' && line.x > canvas.width ||
-                    line.direction === 'left' && line.x + line.width < 0) {
-                    linesRef.current.splice(i, 1);
-                }
-            }
+                return line.x < canvas.width + 100;
+            });
 
-            // Add new lines less frequently
-            if (Math.random() < 0.1 && linesRef.current.length < 15) { // Fewer lines
-                linesRef.current.push(createSpeedLine(canvas));
-            }
-
-            frameRef.current = requestAnimationFrame(() => updateLines(canvas, ctx));
+            frameRef.current = requestAnimationFrame(animate);
         };
 
-        updateLines(canvas, ctx);
+        animate();
 
         return () => {
             window.removeEventListener('resize', updateCanvasSize);
@@ -97,7 +77,7 @@ const MobileAnimatedLines: React.FC = () => {
         <canvas
             ref={canvasRef}
             className="fixed inset-0 pointer-events-none"
-            style={{ opacity: 0.3 }} // Lower overall opacity
+            style={{ opacity: 0.2 }}
         />
     );
 };

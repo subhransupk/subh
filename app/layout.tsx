@@ -66,37 +66,33 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
       </head>
       <body className={`${inter.className} bg-[#0a0a0a] text-[#ededed] relative overflow-x-hidden`}>
-        <div className="relative min-h-screen">
-          {/* Background Effects Layer */}
-          <div className="fixed inset-0" style={{ zIndex: 1 }}>
-            {mobile ? (
-              // Mobile: Optimized effects
-              <>
+        {/* Content Layer - Highest Priority */}
+        <div className="relative z-20">
+          {children}
+        </div>
+
+        {/* Background Effects Layer */}
+        <div className="fixed inset-0 z-10">
+          {mobile ? (
+            // Mobile: Simple effects
+            <>
+              <div className="opacity-20">
                 <MobileAnimatedLines />
+              </div>
+              <div className="opacity-20">
                 <MobileCornerWeb />
-              </>
-            ) : (
-              // Desktop: Full effects
-              <>
-                <BackgroundWebs />
-                <AnimatedLines />
-                <CornerWeb />
-                <WebEffect />
-              </>
-            )}
-          </div>
-
-          {/* Floating Icons - Desktop Only */}
-          {!mobile && (
-            <div className="fixed inset-0" style={{ zIndex: 2 }}>
+              </div>
+            </>
+          ) : (
+            // Desktop: Full effects
+            <>
+              <BackgroundWebs />
+              <AnimatedLines />
+              <CornerWeb />
+              <WebEffect />
               <FloatingIcons />
-            </div>
+            </>
           )}
-
-          {/* Content Layer - Highest Priority */}
-          <div className="relative" style={{ zIndex: 3 }}>
-            {children}
-          </div>
         </div>
       </body>
     </html>
